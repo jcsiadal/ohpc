@@ -46,9 +46,19 @@ BuildRequires: libselinux-devel, libacl-devel, libattr-devel
 BuildRequires: libuuid-devel, device-mapper-devel, xz-devel
 BuildRequires: libtirpc-devel
 
-# charles.r.baird@intel.com - required to determine where to stick warewulf-httpd.conf
-%if 0%{?suse_version}
+
+%if 0%{?suse_version} || 0%{?sle_version}
+BuildRequires: systemd-rpm-macros
+%global httpsvc apache2
+%global httpgrp www
+%global tftpsvc tftp
+%global dhcpsrv dhcp-server
+# charles.r.baird@intel.com - release required to determine where to stick warewulf-httpd.conf
+%if 0%{?is_opensuse} 
 BuildRequires: openSUSE-release
+%else
+BuildRequires: sles-release
+%endif
 %endif
 
 %if 0%{?rhel:1}
@@ -58,16 +68,11 @@ BuildRequires: openSUSE-release
 %if %{rhel} >= 8
 BuildRequires: systemd
 %global dhcpsrv dhcp-server
-%else # rhel < 8
+%else
+# RHEL < 8
 %global dhcpsrv dhcp
-%endif # rhel 8
-%else # sle_version
-BuildRequires: systemd-rpm-macros
-%global httpsvc apache2
-%global httpgrp www
-%global tftpsvc tftp
-%global dhcpsrv dhcp-server
-%endif # rhel
+%endif
+%endif
 
 # If multiple architectures are needed, set
 # --define="cross_compile 1" as an rpmbuild option
@@ -75,13 +80,13 @@ BuildRequires: systemd-rpm-macros
 %global CROSS_FLAG --enable-cross-compile
 %if "%{_arch}" == "x86_64"
 BuildRequires: gcc-aarch64-linux-gnu
-%endif # x86_64
+%endif
 %if "%{_arch}" == "aarch64"
 BuildRequires: gcc-x86_64-linux-gnu
-%endif # aarch64
+%endif
 %else
 %undefine CROSS_FLAG
-%endif # cross_compile
+%endif
 
 # New RHEL and SLE include the required FS tools
 %if 0%{?rhel} >= 8 || 0%{?sle_version} >= 150000
@@ -91,6 +96,11 @@ Requires: parted, autofs, e2fsprogs
 BuildRequires: libarchive.so.13()(64bit)
 Requires: libarchive.so.13()(64bit)
 %global CONF_FLAGS --with-local-e2fsprogs --with-local-libarchive --with-local-parted --with-local-partprobe
+%if 0%{?sle_version} >= 150300
+BuildRequires: busybox
+Requires: busybox
+%global CONF_FLAGS %{CONF_FLAGS} --with-local-busybox
+%endif
 %else
 %global localtools 0
 Requires: %{name}-gpl_sources = %{version}-%{release}
@@ -203,13 +213,15 @@ Requires: %{httpsvc}, perl(Apache), %{tftpsvc}, %{dhcpsrv}
 
 %if 0%{?rhel} >= 8
 Requires(post): policycoreutils-python-utils
-%else # Not RHEL 8+
+%else
+# Not RHEL 8+
 %if 0%{?sle_version} >= 150100
 Requires(post): policycoreutils
-%else # Not RHEL 8+ or SLE 15.1+
+%else
+# Not RHEL 8+ or SLE 15.1+
 Requires(post): policycoreutils-python
-%endif # sle_version
-%endif # rhel
+%endif
+%endif
 
 %description server
 Warewulf is an operating system management toolkit designed to facilitate
@@ -221,13 +233,15 @@ This package contains the CGI scripts and event components to
 provision systems.  Systems used solely for administration of Warewulf
 do not require this package.
 
+do not require this package.
+
 
 %post server
 # Update users and services on first time installation
 if [ $1 -eq 1 ] ; then
 usermod -a -G warewulf %{httpgrp} >/dev/null 2>&1 || :
 %{__mkdir_p} %{wwsrvdir}/warewulf/ipxe %{wwsrvdir}/warewulf/bootstrap 2>/dev/null || :
-%if 0%{?sle_version:1} || 0%{?rhel} >= 8
+%if 0%{?sle_version:1} || 0%{?suse_version:1} || 0%{?rhel} >= 8
 %systemd_post %{httpdsvc}.service >/dev/null 2>&1 || :
 %systemd_post %{tftpsvc}.socket >/dev/null 2>&1 || :
 %else
@@ -251,7 +265,7 @@ semanage fcontext -d -t httpd_sys_content_t '%{wwsrvdir}/warewulf/ipxe(/.*)?' 2>
 semanage fcontext -d -t httpd_sys_content_t '%{wwsrvdir}/warewulf/bootstrap(/.*)?' 2>/dev/null || :
 /sbin/restorecon -R %{wwsrvdir}/warewulf || :
 fi
-%if 0%{?sle_version:1} || 0%{?rhel} >= 8
+%if 0%{?sle_version:1} || 0%{?suse_versioni:1} || 0%{?rhel} >= 8
 %systemd_postun_with_restart %{httpdsvc}.service >/dev/null 2>&1 || :
 %systemd_postun_with_restart %{tftpsvc}.socket >/dev/null 2>&1 || :
 %else
