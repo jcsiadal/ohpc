@@ -52,18 +52,18 @@ Patch1:    pdsh-slurm-list.patch
 %global _defaults ssh exec readline pam
 
 #   LLNL system defaults
-#%if 0%{?chaos}
-#%global _default_with %{_defaults} mrsh nodeupdown genders slurm
-#%else
+#%%if 0%%{?chaos}
+#%%global _default_with %%{_defaults} mrsh nodeupdown genders slurm
+#%%else
 #   All other defaults
 %global _default_with %{_defaults} mrsh genders slurm
-#%endif
+#%%endif
 
 #
 #   Environment variables can be used to override defaults above:
 #
-#%global _env_without ${PDSH_WITHOUT_OPTIONS}
-#%global _env_with    ${PDSH_WITH_OPTIONS}
+#%%global _env_without ${PDSH_WITHOUT_OPTIONS}
+#%%global _env_with    ${PDSH_WITH_OPTIONS}
 
 #   Shortcut for % global expansion
 %define dstr "%%%%"global
@@ -124,14 +124,14 @@ Patch1:    pdsh-slurm-list.patch
 %endif
 
 
-#%{?_with_mrsh:BuildRequires: munge-devel%{PROJ_DELIM}}
-#BuildRequires: munge-devel%{PROJ_DELIM}
+#%%{?_with_mrsh:BuildRequires: munge-devel%%{PROJ_DELIM}}
+#BuildRequires: munge-devel%%{PROJ_DELIM}
 %{?_with_qshell:BuildRequires: qsnetlibs}
 %{?_with_mqshell:BuildRequires: qsnetlibs}
 %{?_with_readline:BuildRequires: readline-devel}
 %{?_with_readline:BuildRequires: ncurses-devel}
 %{?_with_nodeupdown:BuildRequires: whatsup}
-#%{?_with_genders:BuildRequires: genders > 1.0}
+#%%{?_with_genders:BuildRequires: genders > 1.0}
 #BuildRequires: genders > 1.0
 %{?_with_pam:BuildRequires: pam-devel}
 %{?_with_slurm:BuildRequires: slurm-devel%{PROJ_DELIM}}
@@ -322,6 +322,7 @@ cp /usr/lib/rpm/config.guess config
 %endif
 
 ./configure --prefix=%{install_path} \
+    --libdir=%{install_path}/lib \
     --with-rcmd-rank-list="ssh mrsh rsh krb4 exec xcpu" \
     %{?_enable_debug}       \
     %{?_with_rsh}           \
@@ -400,8 +401,8 @@ find ${RPM_BUILD_ROOT}
 %exclude %{install_path}/lib/pdsh/slurm.*
 
 %if 0%{?OHPC_BUILD}
-# dir %{OHPC_PUB}/share/doc
-# {OHPC_PUB}/share/doc/%{pname}
+# dir %%{OHPC_PUB}/share/doc
+# {OHPC_PUB}/share/doc/%%{pname}
 %doc AUTHORS
 
 %endif
