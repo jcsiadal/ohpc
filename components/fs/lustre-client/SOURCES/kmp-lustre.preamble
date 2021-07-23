@@ -1,2 +1,1 @@
 Obsoletes:      %{name}-modules < %{version}
-Conflicts:      kernel-lustre
