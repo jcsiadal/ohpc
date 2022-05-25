@@ -94,7 +94,6 @@ BuildRequires: libXext-devel
 BuildRequires: libXft-devel
 BuildRequires: fontconfig
 BuildRequires: timezone
-
 %else
 BuildRequires: expat-devel
 BuildRequires: openssl-devel
