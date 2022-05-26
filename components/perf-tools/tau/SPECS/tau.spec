@@ -47,7 +47,7 @@ BuildRequires: curl chrpath
 BuildRequires: sed grep
 BuildRequires: postgresql-devel binutils-devel
 Requires: binutils-devel
-BuildRequires: zlib-devel python2-devel
+BuildRequires: zlib-devel python3-devel
 Requires:      lmod%{PROJ_DELIM} >= 7.6.1
 BuildRequires: pdtoolkit-%{compiler_family}%{PROJ_DELIM}
 %ifarch x86_64
