@@ -17,15 +17,12 @@
 
 Summary:   A general purpose library and file format for storing scientific data
 Name:      %{pname}-%{compiler_family}%{PROJ_DELIM}
-Version:   1.10.8
+Version:   1.10.9
 Release:   1%{?dist}
-License:   Hierarchical Data Format (HDF) Software Library and Utilities License
+License:   HDF5 (BSD-3-Clause) and LBNL
 Group:     %{PROJ_NAME}/io-libs
 URL:       http://www.hdfgroup.org/HDF5
 Source0:   https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/%{pname}-%{version}/src/%{pname}-%{version}.tar.bz2
-Patch0:    h5cc.patch
-Patch1:    h5fc.patch
-Patch2:    h5cxx.patch
 
 BuildRequires: zlib-devel
 Requires:      zlib
@@ -46,17 +43,10 @@ grids. You can also mix and match them in HDF5 files according to your needs.
 
 
 %prep
-
 %setup -q -n %{pname}-%{version}
-#%patch0 -p0
-#%patch1 -p0
-#%patch2 -p0
 
-# Fix building with gcc8 (this should be a patch)
-sed "s/\(.*\)(void) HDF_NO_UBSAN/HDF_NO_UBSAN \1(void)/" -i src/H5detect.c
 
 %build
-
 # override with newer config.guess for aarch64
 %ifarch aarch64 || ppc64le
 cp /usr/lib/rpm/config.guess bin
@@ -66,21 +56,22 @@ cp /usr/lib/rpm/config.guess bin
 %ohpc_setup_compiler
 
 ./configure --prefix=%{install_path} \
-	    --enable-fortran         \
+            --libdir=%{install_path}/lib \
+            --enable-fortran         \
             --enable-static=no       \
-	    --enable-shared          \
-	    --enable-cxx             \
-	    --enable-fortran2003    || { cat config.log && exit 1; }
+            --enable-shared          \
+            --enable-cxx             \
+            --enable-fortran2003    || { cat config.log && exit 1; }
 
 %if "%{compiler_family}" == "llvm" || "%{compiler_family}" == "arm1"
-%{__sed} -i -e 's#wl=""#wl="-Wl,"#g' libtool
-%{__sed} -i -e 's#pic_flag=""#pic_flag=" -fPIC -DPIC"#g' libtool
+sed -i -e 's#wl=""#wl="-Wl,"#g' libtool
+sed -i -e 's#pic_flag=""#pic_flag=" -fPIC -DPIC"#g' libtool
 %endif
 
 make %{?_smp_mflags}
 
-%install
 
+%install
 # OpenHPC compiler designation
 %ohpc_setup_compiler
 
@@ -89,53 +80,49 @@ export NO_BRP_CHECK_RPATH=true
 make %{?_smp_mflags} DESTDIR=$RPM_BUILD_ROOT install
 
 # Remove static libraries
-find "%buildroot" -type f -name "*.la" | xargs rm -f
-find "%buildroot"
+find "%buildroot" -type f -name "*.la" -delete
 
 # OpenHPC module file
-%{__mkdir_p} %{buildroot}%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}
-%{__cat} << EOF > %{buildroot}/%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}/%{version}
-#%Module1.0#####################################################################
+mkdir -p %{buildroot}%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}
+cat << EOF > %{buildroot}/%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}/%{version}.lua
+help([[
+This module loads the %{PNAME} library built with the %{compiler_family} compiler toolchain.
 
-proc ModulesHelp { } {
+Version %{version}
+]])
 
-puts stderr " "
-puts stderr "This module loads the %{PNAME} library built with the %{compiler_family} compiler toolchain."
-puts stderr "\nVersion %{version}\n"
+whatis("Name: %{pname} built with %{compiler_family} toolchain")
+whatis("Version: %{version}")
+whatis("Category: runtime library")
+whatis("Description: %{summary}")
+whatis("%{url}")
 
-}
-module-whatis "Name: %{PNAME} built with %{compiler_family} toolchain"
-module-whatis "Version: %{version}"
-module-whatis "Category: runtime library"
-module-whatis "Description: %{summary}"
-module-whatis "%{url}"
+local version = "%{version}"
 
-set     version			    %{version}
+prepend_path( "PATH",            "%{install_path}/bin")
+prepend_path( "INCLUDE",         "%{install_path}/include")
+prepend_path( "LD_LIBRARY_PATH", "%{install_path}/lib")
+setenv(       "%{pname}_DIR",    "%{install_path}")
+setenv(       "%{pname}_BIN",    "%{install_path}/bin")
+setenv(       "%{pname}_LIB",    "%{install_path}/lib")
+setenv(       "%{pname}_INC",    "%{install_path}/include")
 
-prepend-path    PATH                %{install_path}/bin
-prepend-path    INCLUDE             %{install_path}/include
-prepend-path	LD_LIBRARY_PATH	    %{install_path}/lib
-
-setenv          %{PNAME}_DIR        %{install_path}
-setenv          %{PNAME}_BIN        %{install_path}/bin
-setenv          %{PNAME}_LIB        %{install_path}/lib
-setenv          %{PNAME}_INC        %{install_path}/include
-
-family "hdf5"
+family("hdf5")
 
 EOF
 
-%{__cat} << EOF > %{buildroot}/%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}/.version.%{version}
-#%Module1.0#####################################################################
-##
-## version file for %{pname}-%{version}
-##
-set     ModulesVersion      "%{version}"
+cat << EOF > %{buildroot}/%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}/.version.%{version}.lua
+-- version file for %{pname}-%{version}
+--
+local ModulesVersion = "%{version}"
+
 EOF
 
-%{__mkdir_p} ${RPM_BUILD_ROOT}/%{_docdir}
+mkdir -p ${RPM_BUILD_ROOT}/%{_docdir}
+
 
 %files
-%{OHPC_PUB}
-%doc COPYING
-%doc README.txt
+%{install_path}
+%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}
+%license COPYING
+%doc README.md
