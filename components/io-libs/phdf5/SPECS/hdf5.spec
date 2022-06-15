@@ -127,12 +127,12 @@ setenv(       "%{pname}_LIB",    "%{install_path}/lib")
 setenv(       "%{pname}_INC",    "%{install_path}/include")
 
 family("hdf5")
+EOF
 
 cat << EOF > %{buildroot}/%{OHPC_MODULEDEPS}/%{compiler_family}-%{mpi_family}/p%{pname}/.version.%{version}
 -- version file for %{pname}-%{version}
 --
 local ModulesVersion = "%{version}"
-
 EOF
 
 mkdir -p ${RPM_BUILD_ROOT}/%{_docdir}
