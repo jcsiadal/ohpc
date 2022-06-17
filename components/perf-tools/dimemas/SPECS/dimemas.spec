@@ -34,7 +34,7 @@ BuildRequires: flex
 %endif
 %if 0%{?suse_version}
 BuildRequires: libfl-devel
-BuildRequires: flex%{PROJ_DELIM}
+BuildRequires: flex
 %endif
 BuildRequires: autoconf
 BuildRequires: automake

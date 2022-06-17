@@ -48,6 +48,13 @@ elif [ "$OHPC_COMPILER_FAMILY" = "gnu9" ]; then
     export F77=gfortran
     module purge
     module load gnu9
+elif [ "$OHPC_COMPILER_FAMILY" = "gnu12" ]; then
+    export CC=gcc
+    export CXX=g++
+    export FC=gfortran
+    export F77=gfortran
+    module purge
+    module load gnu12
 elif [ "$OHPC_COMPILER_FAMILY" = "intel" ]; then
     export toolset=intel
     export CC=icc
