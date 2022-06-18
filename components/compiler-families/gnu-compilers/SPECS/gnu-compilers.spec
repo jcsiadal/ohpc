@@ -113,14 +113,13 @@ chmod 755 %{buildroot}%{install_path}/bin/c?9
 mkdir -p %{buildroot}/%{OHPC_MODULES}/%{gnu_major_ver}
 
 cat << EOF > %{buildroot}/%{OHPC_MODULES}/%{gnu_major_ver}/%{version}.lua
-help ([[
+help([[
 This module loads the GNU compiler collection"
 
 See the man pages for gcc, g++, and gfortran for detailed information
 on available compiler options and command-line syntax.
 
 Version %{version}
-
 ]])
 whatis("Name: GNU Compiler Collection")
 whatis("Version: %{version}")
@@ -128,7 +127,7 @@ whatis("Category: compiler, runtime support")
 whatis("Description: GNU Compiler Family (C/C++/Fortran for x86_64)")
 whatis("URL: http://gcc.gnu.org/")
 
-local version = %{version}
+local version = "%{version}"
 
 prepend_path("PATH",            "%{install_path}/bin")
 prepend_path("MANPATH",         "%{install_path}/share/man")
