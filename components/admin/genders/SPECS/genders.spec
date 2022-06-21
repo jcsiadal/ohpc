@@ -12,11 +12,12 @@
 %define pname genders
 
 Name:    %{pname}%{PROJ_DELIM}
-Version: 1.27
+Version: 1.27.3
+%define dash_version 1-27-3
 Release: 1%{?dist}
 Summary: Static cluster configuration database
 License: GPL
-Source:  https://github.com/chaos/genders/archive/genders-1-27-3.tar.gz
+Source:  https://github.com/chaos/genders/archive/genders-%{dash_version}.tar.gz
 Group:   %{PROJ_NAME}/admin
 URL:     https://github.com/chaos/genders
 
@@ -24,8 +25,8 @@ Requires: perl
 BuildRequires: gcc-c++
 BuildRequires: bison flex
 BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: python2
-BuildRequires: python2-devel
+BuildRequires: python3
+BuildRequires: python3-devel
 
 %if 0%{?rhel_version}
 BuildRequires: byacc
@@ -57,11 +58,11 @@ genders API that is compatible with earlier releases of genders
 %{!?_with_perl_site_arch: %{!?_with_perl_vendor_arch: %global _with_perl_vendor_arch --with-perl-vendor-arch}}
 
 %prep
-%setup  -q -n %{pname}-%{pname}-1-27-3
+%setup  -q -n %{pname}-%{pname}-%{dash_version}
 
 %build
 
-%configure PYTHON=/usr/bin/python2 --program-prefix=%{?_program_prefix:%{_program_prefix}} \
+%configure PYTHON=/usr/bin/python3 --program-prefix=%{?_program_prefix:%{_program_prefix}} \
     --with-extension-destdir="$RPM_BUILD_ROOT" \
     %{?_with_perl_extensions} \
     %{?_without_perl_extensions} \

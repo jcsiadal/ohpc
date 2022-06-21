@@ -21,7 +21,7 @@
 %define pname slepc
 
 Name:           %{pname}-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-Version:        3.16.0
+Version:        3.17.1
 Release:        1
 Summary:        A library for solving large scale sparse eigenvalue problems
 License:        LGPL-3.0
@@ -34,8 +34,6 @@ Requires:       lmod%{PROJ_DELIM} >= 7.6.1
 
 # A configure script in slepc is made by python
 BuildRequires: python3
-# petsc requires python2 to build
-BuildRequires: python2
 BuildRequires: make
 
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm"
@@ -89,6 +87,11 @@ pushd %{buildroot}%{install_path}
 sed -i 's|/tmp||g' $(egrep -R '/tmp' ./ |\
 egrep -v 'Binary\ file.*matches' |awk -F : '{print $1}')
 popd
+
+# Can't use Python2 any more. Try to use Python3 with any older scripts.
+for file in $(grep -l -I -r "/bin/python$\|/env python$" %{buildroot}%{install_path}/); do
+    sed -i "s#/bin/python#/bin/python3#;s#/env python#/env python3#" $file
+done
 
 # Module file
 # OpenHPC module file

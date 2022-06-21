@@ -13,6 +13,8 @@
 %define ohpc_mpi_dependent 1
 %include %{_sourcedir}/OHPC_macros
 
+%define __requires_exclude .*python2.*
+
 # Base package name
 %define pname tau
 

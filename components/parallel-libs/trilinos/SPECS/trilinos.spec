@@ -13,7 +13,6 @@
 %define ohpc_mpi_dependent 1
 %include %{_sourcedir}/OHPC_macros
 
-
 # Base package name
 %define pname trilinos
 %define ver_exp 13-2-0

@@ -65,13 +65,9 @@ module load boost
 
 #./bootstrap
 
-%if 0%{?suse_version}
-module load flex
-export LDFLAGS="-L$FLEX_LIB"
-%endif
-
 ./configure --prefix=%{install_path} \
-            --with-boost=$BOOST_DIR || cat config.log
+            --with-boost=$BOOST_DIR \
+            || cat config.log
 
 make %{?_smp_mflags}
 

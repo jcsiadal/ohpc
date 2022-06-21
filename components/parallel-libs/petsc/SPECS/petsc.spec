@@ -25,7 +25,7 @@ Name:           %{pname}-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Summary:        Portable Extensible Toolkit for Scientific Computation
 License:        2-clause BSD
 Group:          %{PROJ_NAME}/parallel-libs
-Version:        3.16.1
+Version:        3.17.2
 Release:        1%{?dist}
 Source0:        http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-%{version}.tar.gz
 Patch1:         petsc.rpath.patch
@@ -34,7 +34,7 @@ Url:            http://www.mcs.anl.gov/petsc/
 Requires:       lmod%{PROJ_DELIM} >= 7.6.1
 BuildRequires:  phdf5-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:       phdf5-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-BuildRequires:  python2-devel
+BuildRequires:  python3
 BuildRequires:  valgrind-devel
 BuildRequires:  xz
 BuildRequires:  zlib-devel
@@ -59,7 +59,6 @@ differential equations.
 %setup -q -n %{pname}-%{version}
 %patch1 -p1
 %patch2 -p1
-
 
 %build
 # OpenHPC compiler/mpi designation
@@ -87,7 +86,7 @@ unset FCFLAGS
 
 # icc-impi requires mpiicc wrappers, otherwise dynamic libs are not generated.
 # gnu-impi finds include/4.8.0/mpi.mod first, unless told not to.
-%{__python2} ./config/configure.py \
+%{__python3} ./config/configure.py \
         --prefix=%{install_path} \
         --FFLAGS="-fPIC" \
 %if %{compiler_family} == intel
@@ -133,24 +132,12 @@ make
 
 make install DESTDIR=$RPM_BUILD_ROOT
 
-cd %{buildroot}%{install_path}
-for file in \
-	lib/petsc/bin/petsc_gen_xdmf.py \
-	lib/petsc/bin/PetscBinaryIOTrajectory.py \
-	lib/petsc/bin/petsc-performance-view \
-	lib/petsc/bin/petscnagfor \
-	lib/petsc/bin/taucc.py \
-	lib/petsc/bin/petscnagupgrade.py \
-	lib/petsc/bin/saws/SAWs.py \
-	lib/petsc/bin/petsclogformat.py \
-	share/petsc/examples/config/testparse.py \
-	share/petsc/examples/config/gmakegen.py \
-	share/petsc/examples/config/gmakegentest.py \
-	share/petsc/examples/config/report_tests.py; do
-		sed -e "s,/env python,/python2,g" -i $file
+# Can't use Python2 any more. Try to use Python3 with any older scripts.
+for file in $(grep -l -I -r "/bin/python$\|/env python$" %{buildroot}%{install_path}/); do
+    sed -i "s#/bin/python#/bin/python3#;s#/env python#/env python3#" $file
 done
 
-# remove stock module file
+# Remove stock module files
 rm -rf %{buildroot}%{install_path}/lib/modules
 
 # OpenHPC module file

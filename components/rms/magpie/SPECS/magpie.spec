@@ -35,98 +35,95 @@
 
 Summary: Scripts for running Big Data software in HPC environments
 Name: %{pname}%{PROJ_DELIM}
-Version: 2.5
+Version: 3.0
 Release: 1%{?dist}
 License: GPLv2
 URL: https://github.com/LLNL/magpie
 Group: %{PROJ_NAME}/rms
 Source0: https://github.com/LLNL/magpie/archive/%{version}.tar.gz
 
-# Java 8 or greater required on all cluster nodes.
-# Java development package added to head node.
-BuildRequires: python-rpm-macros
+# Java 8 (javac) or greater required on all cluster nodes.
+BuildRequires: python3-rpm-macros
 Requires: java-devel >= 1.8
-Requires: python2
+Requires: python3
 
 #!BuildIgnore: post-build-checks
 
 %global install_path %{OHPC_UTILS}/%{pname}
 
 %description
-Magpie contains a number of scripts for running Big Data software in HPC environments.
-Thus far, Hadoop, Spark, Hbase, Storm, Pig, Mahout, Phoenix, Kafka, Zeppelin, and 
-Zookeeper are supported. It currently supports running over the parallel file system 
-Lustre and running over any generic network filesytem. There is scheduler/resource 
-manager support for Slurm, Moab, Torque, and LSF.
+Magpie contains a number of scripts for running Big Data software in
+HPC environments. Thus far, Hadoop, Spark, Hbase, Storm, Pig, Phoenix,
+Kafka, Zeppelin, Zookeeper, and Alluxio are supported. It currently supports
+running over the parallel file system Lustre and running over any generic
+network filesytem. There is scheduler/resource manager support for Slurm, Moab,
+Torque, and LSF.
+
 
 %prep
 %setup -q -n %{pname}-%{version}
 
+
 %build
 # Fix-up file permissions and shebang data that cause warnings/errors in OBS
 # Not using `install` command in next section due to very large file count
-find doc -type f -exec %{__chmod} -R -x {} \;
-find conf -type f -exec %{__chmod} -R -x {} \;
-find examples -type f -exec %{__chmod} -R -x {} \;
-find patches -type f -exec %{__chmod} -R -x {} \;
-%{__chmod} -x magpie/job/magpie-job-ray-rayips.py
-%{__chmod} -x magpie/job/magpie-job-tensorflow-horovod-synthetic-benchmark.py
-%{__chmod} -x magpie/job/magpie-job-tensorflow-tfadd.py
-%{__chmod} -x submission-scripts/script-templates/magpie-hive
-%{__chmod} -x testsuite/testscripts/test-ray.py
-%{__chmod} -x testsuite/testscripts/test-tensorflow.py
-%{__chmod} +x testsuite/test-config.sh
+find doc -type f -exec chmod -R -x {} \;
+find conf -type f -exec chmod -R -x {} \;
+find examples -type f -exec chmod -R -x {} \;
+find patches -type f -exec chmod -R -x {} \;
+chmod -x magpie/job/magpie-job-ray-rayips.py
+chmod -x magpie/job/magpie-job-tensorflow-horovod-synthetic-benchmark.py
+chmod -x magpie/job/magpie-job-tensorflow-tfadd.py
+chmod -x submission-scripts/script-templates/magpie-hive
+chmod -x testsuite/testscripts/test-ray.py
+chmod -x testsuite/testscripts/test-tensorflow.py
+chmod +x testsuite/test-config.sh
 for script in $(grep "^#!/usr/bin/env bash" conf); do
-   %{__sed} -i "s#/usr/bin/env bash#/bin/bash#" $script
-   %{__chmod} +x $script
+   sed -i "s#/usr/bin/env bash#/bin/bash#" $script
+   chmod +x $script
 done
-%{__sed} -i "s#/usr/bin/env python#%{?__python2}%{!?__python2:/usr/bin/python2}#" magpie/job/magpie-job-zeppelin-checkzeppelinup.py
+
 find . -name \.gitignore -type f -delete
-%{__rm} .travis.yml
+rm .travis.yml
 
 %install
-%{__mkdir} -p -m 755 ${RPM_BUILD_ROOT}%{install_path}
-%{__cp} -a . ${RPM_BUILD_ROOT}%{install_path}
+mkdir -p -m 755 ${RPM_BUILD_ROOT}%{install_path}
+cp -a . ${RPM_BUILD_ROOT}%{install_path}
 
 # OpenHPC module file
-%{__mkdir_p} %{buildroot}/%{OHPC_MODULES}/%{pname}
-%{__cat} << EOF > %{buildroot}/%{OHPC_MODULES}/%{pname}/%{version}
-#%Module1.0#####################################################################
+mkdir -p %{buildroot}/%{OHPC_MODULES}/%{pname}
+cat << EOF > %{buildroot}/%{OHPC_MODULES}/%{pname}/%{version}.lua
+help([[
+This module loads Magpie scripts
 
-proc ModulesHelp { } {
+Version %{version}
+]])
 
-puts stderr " "
-puts stderr "This module loads Magpie scripts"
-puts stderr " "
-puts stderr "\nVersion %{version}\n"
-}
+whatis("Name: Magpie ")
+whatis("Version: %{version}")
+whatis("Category: Resource Managers")
+whatis("Description: Scripts for running Big Data in HPC environments")
+whatis("URL: https://github.com/LLNL/magpie")
 
-module-whatis "Name: Magpie "
-module-whatis "Version: %{version}"
-module-whatis "Category: Resource Managers"
-module-whatis "Description: Scripts for running Big Data in HPC environments"
-module-whatis "URL: https://github.com/LLNL/magpie"
+# JAVA_HOME must be set; locate "javac" in PATH
+if not os.gettenv("JAVA_HOME") then
+   print("ERROR: JAVA_HOME not set.")
+   os.exit 1
+else
+   if os.execute("which javac") ~= 0 then
+   print("ERROR: javac command not found")
+   os.exit 1
+end
 
-# JAVA_HOME must be set; locate "javac" in PATH and confirm it's the correct version
-set     java_check                  [exec which javac]
-if { [catch {exec \$java_check -version 2> /dev/null}] } {
-   puts stderr "ERROR: Java not available."
-} else {
-   setenv          JAVA_HOME           [file dirname [file dirname [exec readlink -f \$java_check]]]
-}
-
-set     version			    %{version}
-setenv          MAGPIE_PATH         %{install_path}
+local version = "%{version}"
+setenv("MAGPIE_PATH", "%{install_path}")
 setenv          MAGPIE_SCRIPTS_HOME %{install_path}
 setenv          %{PNAME}_DIR        %{install_path}
 EOF
 
-%{__cat} << EOF > %{buildroot}/%{OHPC_MODULES}/%{pname}/.version.%{version}
-#%Module1.0#####################################################################
-##
-## version file for %{pname}-%{version}
-##
-set     ModulesVersion      "%{version}"
+cat << EOF > %{buildroot}/%{OHPC_MODULES}/%{pname}/.version.%{version}.lua
+-- version file for %{pname}-%{version}
+local ModulesVersion = "%{version}"
 EOF
 
 
@@ -135,4 +132,3 @@ EOF
 %doc doc/* NEWS README.md TODO VERSION
 %license COPYING DISCLAIMER
 %{OHPC_MODULES}/%{pname}
-

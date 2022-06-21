@@ -95,8 +95,13 @@ across multiple networks.
 
 %build
 %ohpc_setup_compiler
-./configure --prefix=%{install_path} \
-            --libdir=%{install_path}/lib \
+
+./configure \
+%if %{compiler_family} == "gnu12"
+        FFLAGS="$FFLAGS -fallow-argument-mismatch" \
+%endif 
+--prefix=%{install_path} \
+        --libdir=%{install_path}/lib \
 	    --enable-cxx \
 	    --enable-g=dbg \
             --with-device=ch3:mrail \

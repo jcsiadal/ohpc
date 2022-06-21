@@ -18,7 +18,7 @@
 
 Summary:	Extrae tool
 Name:		%{pname}-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-Version:	3.7.0
+Version:	4.0.1
 Release:	1%{?dist}
 License:	LGPLv2+
 Group:		%{PROJ_NAME}/perf-tools
@@ -57,8 +57,6 @@ module load papi
 export compiler_vars="CC=icc CXX=icpc MPICC=mpicc MPIF90=mpiifort"
 %endif
 %endif
-
-
 
 ./bootstrap
 ./configure $compiler_vars --with-xml-prefix=/usr --with-papi=$PAPI_DIR  --without-unwind \

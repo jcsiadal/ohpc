@@ -14,7 +14,7 @@
 %include %{_sourcedir}/OHPC_macros
 
 # Build requires
-BuildRequires: python2
+BuildRequires: python3
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm1"
 BuildRequires: openblas-%{compiler_family}%{PROJ_DELIM}
 Requires:      openblas-%{compiler_family}%{PROJ_DELIM}
@@ -29,7 +29,7 @@ Release: 1%{?dist}
 Summary: Parallel Linear Algebra Software for Multicore Architectures
 License: BSD-3-Clause
 Group:     %{PROJ_NAME}/serial-libs
-URL: https://bitbucket.org/icl/%{pname}
+URL: h/%{pname}
 Source0: http://icl.cs.utk.edu/projectsfiles/%{pname}/pubs/%{pname}_%{version}.tar.gz
 Source1: http://icl.cs.utk.edu/projectsfiles/%{pname}/pubs/%{pname}-installer_%{version}.tar.gz
 Source2: http://www.netlib.org/lapack/lapack-3.8.0.tar.gz
@@ -54,7 +54,7 @@ value problems.
 %setup -q -a 1 -n %{pname}_%{version}
 %patch1 -p 0
 mkdir bin
-ln -s /usr/bin/python2 bin/python
+ln -s /usr/bin/python3 bin/python
 
 %build
 export PATH="$PWD/bin:$PATH"
@@ -76,7 +76,7 @@ module load openblas
 
 export SHARED_OPT=-shared
 
-%if %{compiler_family} == gnu9
+%if %{compiler_family} == gnu9 || %{compiler_family} == gnu12
 export PIC_OPT=-fPIC
 export SONAME_OPT="-Wl,-soname"
 %endif
@@ -91,11 +91,6 @@ export PIC_OPT="-fPIC -DPIC"
 export SONAME_OPT="-Wl,-soname"
 export RPM_OPT_FLAGS="-O3 -fsimdmath"
 %endif
-
-#%if "%{compiler_family}" == "arm1"
-#echo "d" | LAPACKE_WITH_TMG=1 \
-#%endif
-
 
 plasma-installer_%{version}/setup.py              \
     --cc=${CC}                                    \
@@ -127,10 +122,6 @@ plasma-installer_%{version}/setup.py              \
     --ldflags_fc="-fopenmp"                         \
 %endif
     --downlapc
-
-#%if "%{compiler_family}" == "arm1"
-#%{__cat} build/log/lapackcwrapperlog
-#%endif
 
 #
 #Create shared libraries

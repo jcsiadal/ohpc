@@ -111,7 +111,11 @@ module load ucx
 module load libfabric
 %endif
 
-./configure --prefix=%{install_path} \
+./configure \
+%if %{compiler_family} == "gnu12"
+        FFLAGS="$FFLAGS -fallow-argument-mismatch" \
+%endif 
+            --prefix=%{install_path} \
             --libdir=%{install_path}/lib \
 %if 0%{with_slurm}
             --with-pm=no --with-pmi=slurm \

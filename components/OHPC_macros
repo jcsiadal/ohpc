@@ -158,7 +158,7 @@ Requires:      openmpi4-%{compiler_family}%{PROJ_DELIM}
 %global python_lib_dir python%{python3_version}
 BuildRequires: %{python_prefix}-devel
 BuildRequires: %{python_prefix}-setuptools
-BuildRequires: python-rpm-macros
+BuildRequires: %{python_prefix}-rpm-macros
 Requires:      %{python_prefix}
 %endif
 
