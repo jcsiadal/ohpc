@@ -37,7 +37,7 @@ Conflicts: warewulf-ipmi
 
 BuildRequires: make
 
-%if 0%{?suse_version} || 0%{sle_version}
+%if 0%{?suse_version} || 0%{?sle_version}
 BuildRequires: systemd-rpm-macros
 BuildRequires: go
 BuildRequires: firewall-macros
