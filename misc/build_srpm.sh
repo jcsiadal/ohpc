@@ -35,7 +35,7 @@ fi
 
 ROOT=`pwd`
 
-for i in `find . -name "*${PATTERN}*spec"`; do
+for i in `find . -name "${PATTERN}.spec"`; do
 	BASE=`basename $i`
 	DIR=`dirname $i`
 	echo "Building SRPM for ${i}"
