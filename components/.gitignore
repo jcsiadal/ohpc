@@ -86,6 +86,7 @@ provisioning/warewulf-common/SOURCES/*.tar.gz
 provisioning/warewulf-ipmi/SOURCES/*.tar.gz
 provisioning/warewulf-provision/SOURCES/*.tar.gz
 provisioning/warewulf-vnfs/SOURCES/*.tar.gz
+provisioning/warewulf/SOURCES/*.tar.gz
 rms/magpie/SOURCES/*.tar.gz
 rms/munge/SOURCES/munge-*.tar.gz
 rms/openpbs/SOURCES/v*.tar.gz
