@@ -86,11 +86,9 @@ Requires:      gnu12-compilers%{PROJ_DELIM} >= 12.1.0
 %if "%{compiler_family}" == "gnu9"
 BuildRequires: gnu9-compilers%{PROJ_DELIM} >= 9.2.0
 Requires:      gnu9-compilers%{PROJ_DELIM} >= 9.2.0
+%global gnu_family gnu9
 %endif # gnu9
-%if "%{compiler_family}" == "gnu8"
-BuildRequires: gnu8-compilers%{PROJ_DELIM} >= 8.3.0
-Requires:      gnu8-compilers%{PROJ_DELIM} >= 8.3.0
-%endif # gnu8
+
 
 %if "%{compiler_family}" == "intel"
 BuildRequires: gcc-c++ intel-compilers-devel%{PROJ_DELIM}
