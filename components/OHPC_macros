@@ -207,3 +207,7 @@ Requires:      %{python_prefix}
 
 %{?OHPC_CUSTOM_DELIM: %global OHPC_CUSTOM_PKG_DELIM -%{OHPC_CUSTOM_DELIM}}
 %{?OHPC_CUSTOM_DELIM: %global PROJ_DELIM -%{OHPC_CUSTOM_DELIM}%{PROJ_DELIM}}
+
+# Other useful functions:
+# Replace dots in %version with underscores
+%define version_exp %(tr "." "_" <<< %{version})
