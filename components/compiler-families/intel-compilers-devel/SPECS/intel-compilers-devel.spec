@@ -12,11 +12,10 @@
 
 %global pname intel-compilers-devel
 %global keyname GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-%global min_intel_ver 2022.0.0
 
 Summary:   OpenHPC compatibility package for Intel(R) oneAPI HPC Toolkit
 Name:      %{pname}%{PROJ_DELIM}
-Version:   2022.1
+Version:   2024.4
 Release:   1
 License:   Apache-2.0
 URL:       https://github.com/openhpc/ohpc
@@ -30,10 +29,10 @@ Source2:   oneAPI.repo
 #!BuildIgnore: post-build-checks
 
 Requires: gcc libstdc++-devel
-Requires: intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic >= %{min_intel_ver}
+Requires: intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic = %{version}
 Requires: intel-oneapi-mkl intel-oneapi-mkl-devel
 Requires: intel-oneapi-compiler-fortran
-Recommends: intel-hpckit >= %{min_intel_ver}
+Recommends: intel-hpckit = %{version}
 
 %description
 Provides OpenHPC-style compatible modules for use with the Intel(R) oneAPI
@@ -54,7 +53,7 @@ HPC Toolkit.
 # Install RPM key and yum repo
 install -D -m644 %{SOURCE2} -t %{buildroot}%{repodir}/%{basename:%{SOURCE2}}
 
-# Mod generator for PSXE support
+# Mod generator install; modify to use the current version of the GNU compiler
 install -D -m755 %{SOURCE1} %{buildroot}/%{OHPC_ADMIN}/intel/%{basename:%{SOURCE1}}
 sed -i '/C["GNU"] =/s/12/%{gnu_major_ver}/' %{buildroot}/%{OHPC_ADMIN}/intel/%{basename:%{SOURCE1}}
 
